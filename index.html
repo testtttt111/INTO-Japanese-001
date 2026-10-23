@@ -1,0 +1,162 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>INTO Japanese Quiz</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 650px;
+      margin: 30px auto;
+      padding: 20px;
+      background: #fffaf2;
+      color: #333;
+    }
+    .card {
+      background: white;
+      padding: 24px;
+      border-radius: 16px;
+      box-shadow: 0 2px 12px #00000012;
+    }
+    button {
+      cursor: pointer;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      padding: 12px 16px;
+      margin: 6px 0;
+      width: 100%;
+      background: white;
+      text-align: left;
+      font-size: 16px;
+    }
+    button:hover { background: #fff0d9; }
+    #feedback { margin-top: 16px; }
+    #next, #restart {
+      background: #e99a54;
+      color: white;
+      border: none;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <p>INTO JAPANESE 001 · TRAVELER</p>
+    <h1>Mission: Find the Toilet</h1>
+    <p id="progress"></p>
+    <h2 id="question"></h2>
+    <div id="choices"></div>
+    <p id="feedback" aria-live="polite"></p>
+    <button id="next" hidden>Next question →</button>
+    <h3 id="score"></h3>
+    <button id="restart" hidden>Try again</button>
+  </div>
+
+  <script>
+    const questions = [
+      {
+        question: "How do you ask, 'Where is the toilet?'",
+        choices: [
+          "トイレはどこですか。",
+          "これはなんですか。",
+          "みずをください。"
+        ],
+        answer: 0,
+        explanation: "トイレはどこですか。 means 'Where is the toilet?'"
+      },
+      {
+        question: "What does みずをください mean?",
+        choices: [
+          "Where is the station?",
+          "Water, please.",
+          "Thank you."
+        ],
+        answer: 1,
+        explanation: "みず means water; ください means please give me."
+      },
+      {
+        question: "You need help. Which phrase means 'Excuse me'?",
+        choices: [
+          "すみません",
+          "さようなら",
+          "おいしいです"
+        ],
+        answer: 0,
+        explanation: "すみません can get someone's attention politely."
+      }
+    ];
+
+    let current = 0;
+    let points = 0;
+    let answered = false;
+
+    const questionEl = document.getElementById("question");
+    const choicesEl = document.getElementById("choices");
+    const feedbackEl = document.getElementById("feedback");
+    const nextBtn = document.getElementById("next");
+    const scoreEl = document.getElementById("score");
+    const restartBtn = document.getElementById("restart");
+    const progressEl = document.getElementById("progress");
+
+    function renderQuestion() {
+      answered = false;
+      const q = questions[current];
+
+      progressEl.textContent =
+        `Question ${current + 1} of ${questions.length}`;
+      questionEl.textContent = q.question;
+      choicesEl.replaceChildren();
+      feedbackEl.textContent = "";
+      scoreEl.textContent = "";
+      nextBtn.hidden = true;
+
+      q.choices.forEach((choice, index) => {
+        const button = document.createElement("button");
+        button.textContent = choice;
+        button.onclick = () => chooseAnswer(index);
+        choicesEl.appendChild(button);
+      });
+    }
+
+    function chooseAnswer(index) {
+      if (answered) return;
+      answered = true;
+
+      const q = questions[current];
+      const correct = index === q.answer;
+      if (correct) points++;
+
+      feedbackEl.textContent =
+        (correct ? "Correct! " : "Not quite. ") + q.explanation;
+
+      [...choicesEl.children].forEach(button => {
+        button.disabled = true;
+      });
+
+      if (current < questions.length - 1) {
+        nextBtn.hidden = false;
+      } else {
+        scoreEl.textContent =
+          `Your score: ${points} / ${questions.length}`;
+        restartBtn.hidden = false;
+      }
+    }
+
+    nextBtn.onclick = () => {
+      current++;
+      renderQuestion();
+    };
+
+    restartBtn.onclick = () => {
+      current = 0;
+      points = 0;
+      restartBtn.hidden = true;
+      renderQuestion();
+    };
+
+    renderQuestion();
+  </script>
+</body>
+</html>
